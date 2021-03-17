@@ -18,6 +18,8 @@ package org.apache.spark.sql.delta.catalog
 
 import java.{util => ju}
 
+import org.apache.spark.sql.connector.catalog.V2TableWithV1Fallback
+
 // scalastyle:off import.ordering.noEmptyLine
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -55,6 +57,7 @@ case class DeltaTableV2(
     options: CaseInsensitiveStringMap = CaseInsensitiveStringMap.empty())
   extends Table
   with SupportsWrite
+  with V2TableWithV1Fallback
   with DeltaLogging {
 
   private lazy val (rootPath, partitionFilters, timeTravelByPath) = {
@@ -156,6 +159,11 @@ case class DeltaTableV2(
     } else {
       this
     }
+  }
+
+  override def v1Table: CatalogTable = {
+    // TODO check isEmpty
+    catalogTable.get
   }
 }
 
